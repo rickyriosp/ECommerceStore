@@ -14,17 +14,23 @@ namespace ShoppingCart.ShoppingCart
             this.UserId = userId;
         }
 
-        public void AddItems(IEnumerable<ShoppingCartItem> shoppingCartItems)
+        public void AddItems(IEnumerable<ShoppingCartItem> shoppingCartItems, IEventStore eventStore)
         {
             foreach (var item in shoppingCartItems)
             {
-                _items.Add(item);
+                if (_items.Add(item))
+                {
+                    eventStore.Raise("ShoppingCartItemAdded", new { UserId, item });
+                }
             }
         }
 
         public void RemoveItems(int[] productCatalogIds, IEventStore eventStore)
         {
-            _items.RemoveWhere(i => productCatalogIds.Contains(i.ProductCatalogId));
+            if (_items.RemoveWhere(i => productCatalogIds.Contains(i.ProductCatalogId)) > 0)
+            {
+                eventStore.Raise("ShoppingCartItemRemoved", new { UserId, productCatalogIds });
+            }
         }
     }
 

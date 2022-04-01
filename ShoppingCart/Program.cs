@@ -20,7 +20,9 @@ builder.Services.AddHttpClient();
 
 // Error-Handling Policy with Polly
 builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>()
+    // Wrap http calls made in ProductCatalogClient in a Polly policy
     .AddTransientHttpErrorPolicy(p => 
+        // Uses Polly's fluent API to set up a retry policy with an exponential back-off
         p.WaitAndRetryAsync(
             3,
             attempt => TimeSpan.FromMilliseconds(100*Math.Pow(2, attempt))
