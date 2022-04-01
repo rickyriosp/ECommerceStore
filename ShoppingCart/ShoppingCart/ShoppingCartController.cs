@@ -39,7 +39,7 @@ namespace ShoppingCart.ShoppingCart
             // Call to Product Catalog microservice
             var shoppingCartItems = await _productCatalogClient.GetShoppingCartItems(productIds);
 
-            shoppingCart.AddItems(shoppingCartItems);
+            shoppingCart.AddItems(shoppingCartItems, _eventStore);
             _shoppingCartStore.Save(shoppingCart);
 
             return shoppingCart;

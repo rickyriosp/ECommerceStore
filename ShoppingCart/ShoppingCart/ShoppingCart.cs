@@ -29,7 +29,7 @@ namespace ShoppingCart.ShoppingCart
         {
             if (_items.RemoveWhere(i => productCatalogIds.Contains(i.ProductCatalogId)) > 0)
             {
-                eventStore.Raise("ShoppingCartItemRemoved", new { UserId, productCatalogIds });
+                eventStore.Raise("ShoppingCartItemRemoved", new { UserId, item = new { productCatalogIds } });
             }
         }
     }
