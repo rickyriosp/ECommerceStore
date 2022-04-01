@@ -9,10 +9,16 @@ namespace ShoppingCart.ShoppingCart
     public class ShoppingCartController : ControllerBase
     {
         private readonly IShoppingCartStore _shoppingCartStore;
+        private readonly IProductCatalogClient _productCatalogClient;
+        private readonly IEventStore _eventStore;
 
-        public ShoppingCartController(IShoppingCartStore shoppingCartStore)
+        public ShoppingCartController(IShoppingCartStore shoppingCartStore, 
+                                      IProductCatalogClient productCatalogClient,
+                                      IEventStore eventStore)
         {
             _shoppingCartStore = shoppingCartStore;
+            _productCatalogClient = productCatalogClient;
+            _eventStore = eventStore;
         }
 
         // GET /<ShoppingCartController>/5
@@ -22,10 +28,19 @@ namespace ShoppingCart.ShoppingCart
             return _shoppingCartStore.Get(userId);
         }
 
-        // POST /<ShoppingCartController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // POST /<ShoppingCartController>/5/items
+        [HttpPost("/{userId:int}/items")]
+        public async Task<ShoppingCart> Post(int userId, [FromBody] int[] productIds)
         {
+            var shoppingCart = _shoppingCartStore.Get(userId);
+
+            // Call to Product Catalog microservice
+            var shoppingCartItems = await _productCatalogClient.GetShoppingCartItems(productIds);
+
+            shoppingCart.AddItems(shoppingCartItems);
+            _shoppingCartStore.Save(shoppingCart);
+
+            return shoppingCart;
         }
 
         // PUT /<ShoppingCartController>/5
