@@ -43,16 +43,15 @@ namespace ShoppingCart.ShoppingCart
             return shoppingCart;
         }
 
-        // PUT /<ShoppingCartController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
         // DELETE /<ShoppingCartController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{userId:int}/items")]
+        public ShoppingCart Delete(int userId, [FromBody] int[] productIds)
         {
+            var shoppingCart = _shoppingCartStore.Get(userId);
+            shoppingCart.RemoveItems(productIds, _eventStore);
+            _shoppingCartStore.Save(shoppingCart);
+
+            return shoppingCart;
         }
     }
 }
