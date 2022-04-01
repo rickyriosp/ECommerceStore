@@ -1,3 +1,5 @@
+using ShoppingCart.ShoppingCart;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add custom services using Scrutor
+builder.Services.Scan(selector => selector.FromAssemblyOf<Program>()    // Scan the assemblies containing the provided Type
+                                          .AddClasses()                 // Add all public, non-abstract classes
+                                          .AsMatchingInterface());      // Registering an implementation using forwarded services
 
 var app = builder.Build();
 
