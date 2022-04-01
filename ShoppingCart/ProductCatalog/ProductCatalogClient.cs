@@ -1,5 +1,6 @@
 ﻿using ShoppingCart.ShoppingCart;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace ShoppingCart.ProductCatalog
 {
@@ -28,17 +29,44 @@ namespace ShoppingCart.ProductCatalog
             _httpClient = httpClient;
         }
 
-        public Task<IEnumerable<ShoppingCartItem>> GetShoppingCartItems(int[] productCatalogIds)
+        public async Task<IEnumerable<ShoppingCartItem>> GetShoppingCartItems(int[] productCatalogIds)
         {
-            throw new NotImplementedException();
+            using var response = await RequestProductFromProductCatalog(productCatalogIds);
+
+            return await ConvertToShoppingCartItems(response);
         }
 
-        public async Task<HttpResponseMessage> RequestProductFromProductCatalog(int[] productCatalogIds)
+        private async Task<HttpResponseMessage> RequestProductFromProductCatalog(int[] productCatalogIds)
         {
             var productsResource = string.Format(getProductPathTemplate, string.Join("U+002C", productCatalogIds));
 
             // HttpClient to perfrom HTTP Get asynchronously
             return await _httpClient.GetAsync(productsResource);
         }
+
+        private static async Task<IEnumerable<ShoppingCartItem>> ConvertToShoppingCartItems(HttpResponseMessage response)
+        {
+            response.EnsureSuccessStatusCode();
+
+            // Use System.Text.Json to deserialize the JSON from the product catalog microservice
+            var products = await JsonSerializer
+                .DeserializeAsync<List<ProductCatalogProduct>>(
+                    await response.Content.ReadAsStreamAsync(),
+                    new JsonSerializerOptions()
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new();
+
+            // Create ShoppingCartIem for each product in the response
+            return products.Select(p => new ShoppingCartItem(
+                                        p.ProductId,
+                                        p.ProductName,
+                                        p.ProductDescription,
+                                        p.Price
+                                    ));
+        }
+
+        // Private record to represent the product data
+        private record ProductCatalogProduct(int ProductId, string ProductName, string ProductDescription, Money Price);
     }
 }
