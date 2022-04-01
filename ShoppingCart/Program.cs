@@ -12,7 +12,10 @@ builder.Services.AddSwaggerGen();
 // Add custom services using Scrutor
 builder.Services.Scan(selector => selector.FromAssemblyOf<Program>()    // Scan the assemblies containing the provided Type
                                           .AddClasses()                 // Add all public, non-abstract classes
-                                          .AsMatchingInterface());      // Registering an implementation using forwarded services
+                                          .AsMatchingInterface()        // Registering an implementation using forwarded services
+                                          .WithScopedLifetime());       // Use the same service scoped to the lifetime of a request
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

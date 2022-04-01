@@ -1,4 +1,6 @@
-﻿namespace ShoppingCart.ShoppingCart
+﻿using ShoppingCart.EventFeed;
+
+namespace ShoppingCart.ShoppingCart
 {
     public class ShoppingCart
     {
@@ -20,7 +22,7 @@
             }
         }
 
-        public void RemoveItems(int[] productCatalogIds)
+        public void RemoveItems(int[] productCatalogIds, IEventStore eventStore)
         {
             _items.RemoveWhere(i => productCatalogIds.Contains(i.ProductCatalogId));
         }
