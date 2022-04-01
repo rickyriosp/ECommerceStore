@@ -4,37 +4,37 @@
 
 namespace ShoppingCart.ShoppingCart
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     [ApiController]
     public class ShoppingCartController : ControllerBase
     {
-        // GET: api/<ShoppingCartController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IShoppingCartStore _shoppingCartStore;
+
+        public ShoppingCartController(IShoppingCartStore shoppingCartStore)
         {
-            return new string[] { "value1", "value2" };
+            _shoppingCartStore = shoppingCartStore;
         }
 
-        // GET api/<ShoppingCartController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET /<ShoppingCartController>/5
+        [HttpGet("{userId:int}")]
+        public ShoppingCart Get(int userId)
         {
-            return "value";
+            return _shoppingCartStore.Get(userId);
         }
 
-        // POST api/<ShoppingCartController>
+        // POST /<ShoppingCartController>
         [HttpPost]
         public void Post([FromBody] string value)
         {
         }
 
-        // PUT api/<ShoppingCartController>/5
+        // PUT /<ShoppingCartController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<ShoppingCartController>/5
+        // DELETE /<ShoppingCartController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
