@@ -1,4 +1,5 @@
-using ShoppingCart.ShoppingCart;
+using Polly;
+using ShoppingCart.ProductCatalog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,15 @@ builder.Services.Scan(selector => selector.FromAssemblyOf<Program>()    // Scan 
                                           .WithScopedLifetime());       // Use the same service scoped to the lifetime of a request
 
 builder.Services.AddHttpClient();
+
+// Error-Handling Policy with Polly
+builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>()
+    .AddTransientHttpErrorPolicy(p => 
+        p.WaitAndRetryAsync(
+            3,
+            attempt => TimeSpan.FromMilliseconds(100*Math.Pow(2, attempt))
+        )
+    );
 
 var app = builder.Build();
 

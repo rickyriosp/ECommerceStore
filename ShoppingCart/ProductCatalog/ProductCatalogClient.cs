@@ -40,7 +40,7 @@ namespace ShoppingCart.ProductCatalog
         {
             var productsResource = string.Format(getProductPathTemplate, string.Join("U+002C", productCatalogIds));
 
-            // HttpClient to perfrom HTTP Get asynchronously
+            // HttpClient to perfrom HTTP GET asynchronously
             return await _httpClient.GetAsync(productsResource);
         }
 
